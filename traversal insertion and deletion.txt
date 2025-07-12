@@ -1,0 +1,113 @@
+#include <iostream>
+using namespace std;
+
+class Node {
+public:
+    int data;
+    Node* left;
+    Node* right;
+    Node(int val) {
+        data = val;
+        left = nullptr;
+        right = nullptr;
+    }
+};
+
+class tree {
+public:
+    Node* root;
+    tree() {
+        root = nullptr;
+    }
+
+    // Insertion process (same as before)
+    Node* insert(Node* node, int val) {
+        if (node == nullptr) {
+            return new Node(val);
+        }
+        if (val < node->data) {
+            node->left = insert(node->left, val);
+        } else if (val > node->data) {
+            node->right = insert(node->right, val);
+        }
+        return node;
+    }
+
+    void insert(int val) {
+        root = insert(root, val);
+    }
+
+    // Find minimum node in a subtree (used for deletion)
+    Node* findMin(Node* node) {
+        while (node && node->left != nullptr) {
+            node = node->left;
+        }
+        return node;
+    }
+
+    // Deletion process
+    Node* deleteNode(Node* node, int val) {
+        if (node == nullptr) {
+            return node; // value not found, do nothing
+        }
+        if (val < node->data) {
+            node->left = deleteNode(node->left, val); // go left
+        } else if (val > node->data) {
+            node->right = deleteNode(node->right, val); // go right
+        } else {
+            // Found the node to delete
+            if (node->left == nullptr) {
+                // Case 1 & 2: no left child, replace with right child (could be nullptr)
+                Node* temp = node->right;
+                delete node;
+                return temp;
+            } else if (node->right == nullptr) {
+                // Case 2: no right child, replace with left child
+                Node* temp = node->left;
+                delete node;
+                return temp;
+            } else {
+                // Case 3: two children
+                Node* temp = findMin(node->right); // find inorder successor
+                node->data = temp->data; // copy successor value here
+                node->right = deleteNode(node->right, temp->data); // delete successor
+            }
+        }
+        return node;
+    }
+
+    void deleteNode(int val) {
+        root = deleteNode(root, val);
+    }
+
+    // Inorder traversal (same as before)
+    void traverse(Node* node) {
+        if (node == nullptr) {
+            return;
+        }
+        traverse(node->left);
+        cout << node->data << " ";
+        traverse(node->right);
+    }
+};
+
+int main() {
+    tree t;
+    t.insert(2);
+    t.insert(4);
+    t.insert(7);
+    t.insert(12);
+    t.insert(15);
+
+    cout << "Tree inorder before deletion: ";
+    t.traverse(t.root);
+    cout << endl;
+
+    t.deleteNode(7); // deleting node with value 7
+
+    cout << "Tree inorder after deletion: ";
+    t.traverse(t.root);
+    cout << endl;
+
+    return 0;
+}
